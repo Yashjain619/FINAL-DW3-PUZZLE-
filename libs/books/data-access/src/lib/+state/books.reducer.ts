@@ -19,7 +19,7 @@ export interface BooksPartialState {
 export const booksAdapter: EntityAdapter<Book> = createEntityAdapter<Book>();
 
 export const initialState: State = booksAdapter.getInitialState({
-  loaded: false
+  loaded: true
 });
 
 const booksReducer = createReducer(
@@ -38,6 +38,7 @@ const booksReducer = createReducer(
   ),
   on(BooksActions.searchBooksFailure, (state, { error }) => ({
     ...state,
+    loaded: true,
     error
   })),
   on(BooksActions.clearSearch, state => booksAdapter.removeAll(state))
