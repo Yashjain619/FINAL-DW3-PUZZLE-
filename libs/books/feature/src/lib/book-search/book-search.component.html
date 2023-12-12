@@ -1,4 +1,4 @@
-<form [formGroup]="searchForm" (ngsubmit)="searchBooks()">
+<form [formGroup]="searchForm">
   <mat-form-field floatLabel="never">
     <input
       autoFocus
@@ -7,15 +7,24 @@
       placeholder="Search for books to add to your reading list"
       formControlName="term"
     />
-    <button mat-icon-button matSuffix aria-label="search">
-      <mat-icon>search</mat-icon>
-    </button>
   </mat-form-field>
 </form>
 
-<ng-container *ngIf="searchTerm; else empty">
+<div class="error" *ngIf="getBooksError$ | async">
+  <p aria-live="assertive">
+    {{ ERROR_TEXT }}
+  </p>
+</div>
+<ng-container>
+  <mat-spinner
+    *ngIf="(getBooksLoaded$ | async) === false"
+    [diameter]=SPINNER_DIAMETER
+    [strokeWidth]=SPINNER_WIDTH
+  ></mat-spinner>
+</ng-container>
+<ng-container *ngIf="searchTerm && (getBooksError$ | async) === null; else empty">
   <div class="book-grid">
-    <div class="book" data-testing="book-item" *ngFor="let book of books">
+    <div class="book" data-testing="book-item" *ngFor="let book of books$ | async">>
       <div class="book--title">
         {{ b.title }}
       </div>
@@ -31,11 +40,13 @@
           </div>
           <p [innerHTML]="book.description"></p>
           <div>
-            <button
-              mat-flat-button
+            <button 
+              mat-flat-button 
+              data-testing="add-item" 
               color="primary"
-              (click)="addBookToReadingList(book)"
-              [disabled]="book.isAdded"
+              (click)="addBookToReadingList(book)" 
+              [attr.aria-label]="'Want to Read ' + book.title"
+              [disabled]="book.isAdded">
             >
               Want to Read
             </button>
@@ -48,9 +59,12 @@
 <ng-template #empty>
   <div class="empty">
     <p>
-      Try searching for a topic, for example "<a (click)="searchExample()"
-        >JavaScript</a
-      >".
+      Try searching for a topic, for example 
+      "<button  
+        aria-label="Try searching for a topic, for example JavaScript"
+        (click)="searchExample()">
+        JavaScript
+      </button>".
     </p>
   </div>
 </ng-template>
