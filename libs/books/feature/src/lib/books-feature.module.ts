@@ -10,6 +10,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { TotalCountComponent } from './total-count/total-count.component';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ReadingListComponent } from './reading-list/reading-list.component';
 
 const EXPORTS = [
@@ -24,6 +25,7 @@ const EXPORTS = [
     MatButtonModule,
     MatBadgeModule,
     MatIconModule,
+    MatProgressSpinnerModule,
     MatInputModule,
     MatSnackBarModule,
     FormsModule,
