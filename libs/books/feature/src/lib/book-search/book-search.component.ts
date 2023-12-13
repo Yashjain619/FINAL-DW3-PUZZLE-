@@ -41,7 +41,7 @@ export class BookSearchComponent {
   }
 
   addBookToReadingList(book: Book): void {
-    this.store.dispatch(addToReadingList({ book }));
+    this.store.dispatch(addToReadingList({ book: { ...book, isOpenSnackBar: true } }));
   }
 
   searchExample(): void {

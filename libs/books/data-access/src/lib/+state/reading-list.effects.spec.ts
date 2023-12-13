@@ -7,15 +7,19 @@ import { HttpTestingController } from '@angular/common/http/testing';
 import { SharedTestingModule } from '@tmo/shared/testing';
 import { ReadingListEffects } from './reading-list.effects';
 import * as ReadingListActions from './reading-list.actions';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
-describe('ToReadEffects', () => {
+describe('ReadingListEffect', () => {
   let actions: ReplaySubject<any>;
   let effects: ReadingListEffects;
   let httpMock: HttpTestingController;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [SharedTestingModule],
+      imports: [
+        SharedTestingModule,
+        MatSnackBarModule
+      ],
       providers: [
         ReadingListEffects,
         provideMockActions(() => actions),
