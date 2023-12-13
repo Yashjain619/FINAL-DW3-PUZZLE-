@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component,OnDestroy, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import {
   addToReadingList,
@@ -11,7 +11,8 @@ import {
 } from '@tmo/books/data-access';
 import { FormBuilder } from '@angular/forms';
 import { Book } from '@tmo/shared/models';
-import { Observable } from 'rxjs';
+import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import { Subject, Observable } from 'rxjs';
 
 @Component({
   selector: 'tmo-book-search',
@@ -19,9 +20,9 @@ import { Observable } from 'rxjs';
   styleUrls: ['./book-search.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class BookSearchComponent {
+export class BookSearchComponent implements OnInit, OnDestroy {
   books$: Observable<ReadingListBook[]> = this.store.select(getAllBooks);
-
+  private unsubscribeObservable$: Subject<void> = new Subject();
   searchForm = this.fb.group({
     term: ''
   });
@@ -40,20 +41,31 @@ export class BookSearchComponent {
     return this.searchForm.value.term;
   }
 
+  ngOnInit(): void {
+    this.searchForm.get('term').valueChanges
+      .pipe(
+        debounceTime(500),
+        distinctUntilChanged(),
+        takeUntil(this.unsubscribeObservable$))
+      .subscribe((searchTerm) => {
+        if (searchTerm) {
+          this.store.dispatch(searchBooks({ term: searchTerm }));
+        } else {
+          this.store.dispatch(clearSearch());
+        }
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribeObservable$.next();
+    this.unsubscribeObservable$.complete();
+  }
+
   addBookToReadingList(book: Book): void {
     this.store.dispatch(addToReadingList({ book }));
   }
 
   searchExample(): void {
     this.searchForm.controls.term.setValue('javascript');
-    this.searchBooks();
-  }
-
-  searchBooks(): void {
-    if (this.searchForm.value.term) {
-      this.store.dispatch(searchBooks({ term: this.searchTerm }));
-    } else {
-      this.store.dispatch(clearSearch());
-    }
   }
 }
